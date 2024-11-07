@@ -2,23 +2,28 @@ import streamlit as st
 import pandas as pd
 import pickle
 import os
-import plotly.express as px
+import plotly.express as px  
 import numpy as np
-from sklearn.metrics import pairwise_distances
-import plotly.graph_objects as go
+from sklearn.metrics import pairwise_distances  
+import plotly.graph_objects as go  
 
-def scatter(model, model_name, data, new_point, features, color_scale, tittle):
-    clusters=model.fit_predict(data[features])
-    data[f"{model_name}_Cluster"]=clusters
+
+def scatter(model, model_name, data, new_point, features, color_scale, title):
+    clusters = model.fit_predict(data[features])  
+    data[f"{model_name}_Cluster"] = clusters
+
     
-    if model_name== "KMeans_model":
+    if model_name == "KMeans_model":
         new_cluster = model.predict(new_point[features])[0]
     else:
-        distances=pairwise_distances(new_point[features],data[features])
-        nearest_index= distances.argmin()
-        new_cluster=clusters[nearest_index]
-        
-    fig = px.scatter_3d(data, x='Avg_Credit_Limit', y='Total_Credit_Cards',z='Total_visits_online', color=f"{model_name}_Cluster", tittle=tittle,color_continuous_scale=color_scale)
+        distances = pairwise_distances(new_point[features], data[features])
+        nearest_index = distances.argmin()
+        new_cluster = clusters[nearest_index]
+
+  
+    fig = px.scatter_3d(data, x='Avg_Credit_Limit', y='Total_Credit_Cards', z='Total_visits_online',
+                        color=f"{model_name}_Cluster", title=title, color_continuous_scale=color_scale)
+
     fig.add_trace(
         go.Scatter3d(
             x=new_point['Avg_Credit_Limit'],
@@ -34,6 +39,7 @@ def scatter(model, model_name, data, new_point, features, color_scale, tittle):
 
 st.set_page_config(
     page_title="12063 - Unsupervised Learning",  
+    page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -42,14 +48,16 @@ uploaded_file = st.sidebar.file_uploader("Upload your input CSV file", type=["cs
 
 if uploaded_file is not None:
     input_data = pd.read_csv(uploaded_file)
-    st.markdown("<h1 style='text-align: center;'>Unsupervised Learning - 12063</h1>", unsafe_allow_html=True)  
+    st.markdown("<h1 style='text-align: center;'>Unsupervised Learning - Ivan</h1>", unsafe_allow_html=True)  # YYYYY diisi dengan nama panggilan
     st.dataframe(input_data)
+
 
 model_path = {
     "AGG_model": r'AGG_model.pkl',
     "KMeans_model": r'KMeans_model.pkl',
     "DBSCAN_model": r'DBSCAN_model.pkl'
 }
+
 
 models = {}
 for model_name, path in model_path.items():
@@ -58,10 +66,11 @@ for model_name, path in model_path.items():
             models[model_name] = pickle.load(f)
     else:
         st.write("Model", model_name, "tidak ditemukan di path:", path)
-        
-avg_CL=st.sidebar.number_input("Average Credit Limit", 0,100000)
-sum_CC=st.sidebar.number_input("Total Credit Cards", 0,10)
-sum_VO=st.sidebar.number_input("Total Visits Online", 0,16)
+
+
+avg_CL = st.sidebar.number_input("Average Credit Limit", 0, 1000000)
+sum_CC = st.sidebar.number_input("Total Credit Cards", 0, 10)
+sum_VO = st.sidebar.number_input("Total Visits Online", 0, 16)
 
 if st.sidebar.button("Prediksi !"):
     features = ['Avg_Credit_Limit', 'Total_Credit_Cards', 'Total_visits_online']
